@@ -1,0 +1,30 @@
+DEVLOG -> Tetris in Assembly (Codename "quadmis")
+=============
+= BEGIN LOG =
+=============
+
+> 29 Jan 2022, 17:04 UST-5
+
+I am writing the code for the JavaFX overhead. Currently, I am looking at event handlers, and internally debating between
+2 control structures:
+
+-> Direct Event Capture
+
+# Pros:
+# > Direct checks of the state of input devices
+# > Simple logic
+# Cons:
+# > Undefined behavior if there is a new input event during an update
+# > Creates additional overhead on the main thread
+
+-> Asynchronous Event Capture
+# Pros:
+# > Pushes event capture to its own thread
+# > Async is fine, as main thread only reads from a data structure, thus no dual write conflicts
+# Cons:
+# > Complex logic
+# > New application of code prone is error-prone
+
+Asynchronous seems better in the long run, and once working also provides an unsung benefit:
+de-spaghettification. Having cleaner code will ALWAYS result in fewer, easier-to-diagnose bugs, especially considering
+that this will be pushed to its own process.
