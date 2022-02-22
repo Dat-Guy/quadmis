@@ -1,5 +1,6 @@
 package com.datguy.quadmis;
 
+import com.datguy.quadmis.data.QuadmisBlock;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,7 +20,7 @@ public class QuadmisApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), Screen.getPrimary().getBounds().getWidth(), Screen.getPrimary().getBounds().getHeight());
         QuadmisController controller = fxmlLoader.getController();
 
-        scene.setFill(Color.BLACK);
+        //scene.setFill(Color.BLACK);
         scene.addEventHandler(MouseEvent.ANY, new QuadmisEventHandler<>(controller.getCore()));
         scene.addEventHandler(KeyEvent.ANY, new QuadmisEventHandler<>(controller.getCore()));
 

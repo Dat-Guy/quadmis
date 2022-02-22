@@ -28,3 +28,12 @@ I am writing the code for the JavaFX overhead. Currently, I am looking at event 
 Asynchronous seems better in the long run, and once working also provides an unsung benefit:
 de-spaghettification. Having cleaner code will ALWAYS result in fewer, easier-to-diagnose bugs, especially considering
 that this will be pushed to its own process.
+
+> 31 Jan 2022 10:09 UST-5
+
+The JavaFX overhead and some organizational code is done. Worked out a hard-to-diagnose
+bug involving the FXML file, namely a bad naming.
+
+> 22 Feb 2022 13:16 UST-5
+
+...wow that's a timestamp. Uh. I implemented the rendering logic, now there's the controls and checking the rotation logic...

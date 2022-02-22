@@ -1,41 +1,67 @@
 package com.datguy.quadmis;
 
+import com.datguy.quadmis.data.QuadmisGrid;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
-import java.security.Key;
+import java.lang.ref.WeakReference;
 
 public class QuadmisCore {
 
+    private final QuadmisGrid grid;
+    private final QuadmisInputHandler inputHandler;
+    private final QuadmisRenderer renderer;
+
+    private final WeakReference<QuadmisController> controller;
+
     // Should call all necessary classes/methods in order for the game to function,
     // but not implement anything itself other than handlers
-    public QuadmisCore() {
+    public QuadmisCore(QuadmisController controller) {
+        grid = new QuadmisGrid();
+        inputHandler = new QuadmisInputHandler(grid);
+        renderer = new QuadmisRenderer(this);
+        this.controller = new WeakReference<>(controller);
 
+        grid.setParentHandler(inputHandler);
     }
 
-    // Main update method, called each frame
-    // TODO: Make graphical/logical updates asynchronous
-    public void update(long now, GraphicsContext gc) {
-
+    public void start() {
+        inputHandler.start();
+        renderer.start();
     }
 
-    // Render is its own method, to organize/hope for shader
-    public void render(GraphicsContext gc) {
-
+    public QuadmisController getController() {
+        return controller.get();
     }
 
     // Handles KeyEvents
     private void handleKeyEvent(KeyEvent event) {
         // For now, just print the event name and basic data
-        System.out.println(event.getEventType().getName() + ": " + event.getCharacter());
+        // System.out.println(event.getEventType().getName() + ": " + event.getCharacter());
+
+        // We're going to want to start intercepting key presses and using them to control the game.
+        // Luckily, the guidelines already define this for us:
+
+        // Moving the piece L/R should move once initially, then after a certain amount of time has elapsed, if the
+        // key is still held, begin moving the piece left/right
+
+        // As long as down is held, make the piece fall faster
+        // Spacebar hard-drops (should make the piece phase down until it collides, then lock it, all on a single tick)
+        // z-x spins left-right, c holds, a flips (TODO: add flip functionality)
+        inputHandler.handleKeyEvent(event);
     }
 
     // Handles MouseEvents
     private void handleMouseEvent(MouseEvent event) {
-        System.out.println(event.getEventType().getName() + ": " + event.getButton() + ", (x: " + event.getSceneX() + ", y: " + event.getSceneY() + ")");
+
+        // System.out.println(event.getEventType().getName() + ": " + event.getButton() + ", (x: " + event.getSceneX() + ", y: " + event.getSceneY() + ")");
+    }
+
+    public QuadmisGrid getGrid() {
+        return grid;
     }
 
 
