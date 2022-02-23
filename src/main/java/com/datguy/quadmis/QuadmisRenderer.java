@@ -29,6 +29,13 @@ public class QuadmisRenderer {
         }
     }
 
+    public void stop() {
+        QuadmisCore gotten = invoker.get();
+        if (gotten != null) {
+            gotten.getController().stopAnimation();
+        }
+    }
+
     public void renderGrid(GraphicsContext gc, QuadmisGrid grid, double x, double y, double width, double height) {
 
         gc.setFill(Color.BLACK);

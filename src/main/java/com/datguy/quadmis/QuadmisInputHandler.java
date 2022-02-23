@@ -48,6 +48,10 @@ public class QuadmisInputHandler {
         // There's nothing to start, so...
     }
 
+    public void stop() {
+        timer.cancel(); // Destroy the timer
+    }
+
     public void setGravity(int millisInterval) {
         if (gravity != null) {
             gravity.cancel();
@@ -96,6 +100,9 @@ public class QuadmisInputHandler {
                 for (int i = 0; i < 5; i++) {
                     grid.applyGravity();
                 }
+            }
+            if (event.getCode() == KeyCode.R) {
+                grid.reset();
             }
         }
     }

@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import com.datguy.quadmis.QuadmisCore.QuadmisEventHandler;
@@ -14,6 +13,7 @@ import com.datguy.quadmis.QuadmisCore.QuadmisEventHandler;
 import java.io.IOException;
 
 public class QuadmisApplication extends Application {
+    
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(QuadmisApplication.class.getResource("quadmis.fxml"));
@@ -25,6 +25,7 @@ public class QuadmisApplication extends Application {
         scene.addEventHandler(KeyEvent.ANY, new QuadmisEventHandler<>(controller.getCore()));
 
         stage.setTitle("Hello!");
+        stage.setOnHidden(e -> controller.stop());
 
         stage.setScene(scene);
         stage.show();

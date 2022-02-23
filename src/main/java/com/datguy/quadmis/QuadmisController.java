@@ -1,11 +1,12 @@
 package com.datguy.quadmis;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -19,6 +20,8 @@ public class QuadmisController implements Initializable {
     private GraphicsContext graphics;
 
     private final QuadmisCore core;
+
+    private AnimationTimer renderTimer;
 
     public QuadmisController() {
         core = new QuadmisCore(this);
@@ -51,14 +54,23 @@ public class QuadmisController implements Initializable {
         core.start();
     }
 
+    public void stop() {
+        core.stop();
+    }
+
     public void startAnimation() {
-        new AnimationTimer() {
+        renderTimer = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
                 core.render();
             }
-        }.start();
+        };
+        renderTimer.start();
+    }
+
+    public void stopAnimation() {
+        renderTimer.stop();
     }
 
     public QuadmisCore getCore() {

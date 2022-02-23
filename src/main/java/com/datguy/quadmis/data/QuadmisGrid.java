@@ -29,28 +29,10 @@ public class QuadmisGrid {
     // Okay so why is the bag 14 instead of 7?
     // Simple - the piece queue must show 5 pieces, even if it crosses bags
     private final int[] bag = new int[14];
-    private int bagPos = 0;
+    private int bagPos;
 
     public QuadmisGrid() {
-        // Populate the grid as empty
-        for (var r = 0; r < 40; r++) {
-            grid[r] = new boolean[10];
-            visualGrid[r] = new QuadmisBlock[10];
-            for (var c = 0; c < 10; c++) {
-                grid[r][c] = false;
-                visualGrid[r][c] = null;
-            }
-        }
-
-        int[] temp = QuadmisUtil.shuffled(bagPool);
-        int[] temp2 = QuadmisUtil.shuffled(bagPool);
-        System.arraycopy(temp, 0, bag, 0, 7);
-        System.arraycopy(temp2, 0, bag, 7, 7);
-
-        System.out.println(Arrays.toString(bag));
-
-        generateNextPiece();
-        // Tetris is weird - rows count from the bottom up
+        reset();
     }
 
     public void setParentHandler(QuadmisInputHandler handler) {
@@ -60,16 +42,15 @@ public class QuadmisGrid {
 
     public void generateNextPiece() {
 
-        piece = new QuadmisPiece(new QuadmisQuad(switch (bag[bagPos]) {
-            case 0 -> new QuadmisQuad.O();
-            case 1 -> new QuadmisQuad.I();
-            case 2 -> new QuadmisQuad.T();
-            case 3 -> new QuadmisQuad.L();
-            case 4 -> new QuadmisQuad.J();
-            case 5 -> new QuadmisQuad.S();
-            case 6 -> new QuadmisQuad.Z();
-            default -> null;
-        }, 4, 22), this);
+        switch (bag[bagPos]) {
+            case 0 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.O(), 4, 22), this);
+            case 1 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.I(), 3, 21), this);
+            case 2 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.T(), 3, 22), this);
+            case 3 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.L(), 3, 22), this);
+            case 4 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.J(), 3, 22), this);
+            case 5 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.S(), 3, 22), this);
+            case 6 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.Z(), 3, 22), this);
+        }
 
         System.out.println("Generated piece with " + bag[bagPos] + " index");
 
@@ -118,8 +99,8 @@ public class QuadmisGrid {
         int offX = piece.quad.getPos().x;
         int offY = piece.quad.getPos().y;
 
-        if (offY > 20) {
-            parentHandler.get().setGravity(0);
+        if (offY > 22) {
+            reset();
         }
 
         for (int row = shape.length - 1; row >= 0; row--) {
@@ -258,6 +239,30 @@ public class QuadmisGrid {
         }
         parentHandler.get().cancelAutoLock();
         lock();
+    }
+
+    public void reset() {
+        // Populate the grid as empty
+        for (var r = 0; r < 40; r++) {
+            grid[r] = new boolean[10];
+            visualGrid[r] = new QuadmisBlock[10];
+            for (var c = 0; c < 10; c++) {
+                grid[r][c] = false;
+                visualGrid[r][c] = null;
+            }
+        }
+
+
+        bagPos = 0;
+
+        int[] temp = QuadmisUtil.shuffled(bagPool);
+        int[] temp2 = QuadmisUtil.shuffled(bagPool);
+        System.arraycopy(temp, 0, bag, 0, 7);
+        System.arraycopy(temp2, 0, bag, 7, 7);
+
+        System.out.println(Arrays.toString(bag));
+
+        generateNextPiece();
     }
     // ya'know what would be neat? Connected block textures, like in tetr.io plus!
     // However, to do so, we'd need to store extra data to generate textures

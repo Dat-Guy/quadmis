@@ -33,6 +33,11 @@ public class QuadmisCore {
         renderer.start();
     }
 
+    public void stop() {
+        inputHandler.stop();
+        renderer.stop();
+    }
+
     public void render() {
         QuadmisController gotten = controller.get();
         if (gotten != null) {

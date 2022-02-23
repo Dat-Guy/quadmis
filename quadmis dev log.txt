@@ -37,3 +37,8 @@ bug involving the FXML file, namely a bad naming.
 > 22 Feb 2022 13:16 UST-5
 
 ...wow that's a timestamp. Uh. I implemented the rendering logic, now there's the controls and checking the rotation logic...
+
+> 22 Feb 2022 22:44 UST-5
+
+Basic controls implemented. Collision/SRS is mostly function, however L disregards collision on CW rotation.
+Also, code is a bit of a mess now. However, the application terminates gracefully!
