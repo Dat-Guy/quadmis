@@ -51,6 +51,16 @@ public class QuadmisController implements Initializable {
         core.start();
     }
 
+    public void startAnimation() {
+        new AnimationTimer() {
+
+            @Override
+            public void handle(long now) {
+                core.render();
+            }
+        }.start();
+    }
+
     public QuadmisCore getCore() {
         return core;
     }

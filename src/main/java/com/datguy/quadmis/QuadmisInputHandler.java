@@ -1,6 +1,7 @@
 package com.datguy.quadmis;
 
 import com.datguy.quadmis.data.QuadmisGrid;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 import java.util.Timer;
@@ -44,7 +45,7 @@ public class QuadmisInputHandler {
     }
 
     public void start() {
-
+        // There's nothing to start, so...
     }
 
     public void setGravity(int millisInterval) {
@@ -75,6 +76,27 @@ public class QuadmisInputHandler {
     }
 
     public void handleKeyEvent(KeyEvent event) {
-        System.out.println(event.getEventType().getName());
+        if (event.getEventType() == KeyEvent.KEY_PRESSED) {
+            if (event.getCode() == KeyCode.Z) {
+                grid.applyCCWRot();
+            }
+            if (event.getCode() == KeyCode.X) {
+                grid.applyCWRot();
+            }
+            if (event.getCode() == KeyCode.LEFT) {
+                grid.applyShiftLeft();
+            }
+            if (event.getCode() == KeyCode.RIGHT) {
+                grid.applyShiftRight();
+            }
+            if (event.getCode() == KeyCode.SPACE) {
+                grid.applyHarddrop();
+            }
+            if (event.getCode() == KeyCode.DOWN) {
+                for (int i = 0; i < 5; i++) {
+                    grid.applyGravity();
+                }
+            }
+        }
     }
 }

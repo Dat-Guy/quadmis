@@ -33,6 +33,13 @@ public class QuadmisCore {
         renderer.start();
     }
 
+    public void render() {
+        QuadmisController gotten = controller.get();
+        if (gotten != null) {
+            renderer.renderGrid(gotten.getGraphics(), grid, 0, 0, gotten.getCanvas().getWidth(), gotten.getCanvas().getHeight());
+        }
+    }
+
     public QuadmisController getController() {
         return controller.get();
     }

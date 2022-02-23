@@ -83,8 +83,8 @@ public class QuadmisQuad {
 
                 @Override
                 public Point getOffset(int index) {
-                    return new Point(QuadmisTables.Kicks.O[rot][index].x - QuadmisTables.Kicks.O[startRot][index].x,
-                                     QuadmisTables.Kicks.O[rot][index].y - QuadmisTables.Kicks.O[startRot][index].y);
+                    return new Point(QuadmisTables.Kicks.O[startRot][index].x - QuadmisTables.Kicks.O[rot][index].x,
+                                     QuadmisTables.Kicks.O[startRot][index].y - QuadmisTables.Kicks.O[rot][index].y);
                 }
             };
         }
@@ -100,8 +100,302 @@ public class QuadmisQuad {
 
                 @Override
                 public Point getOffset(int index) {
-                    return new Point(QuadmisTables.Kicks.O[rot][index].x - QuadmisTables.Kicks.O[startRot][index].x,
-                            QuadmisTables.Kicks.O[rot][index].y - QuadmisTables.Kicks.O[startRot][index].y);
+                    return new Point(QuadmisTables.Kicks.O[startRot][index].x - QuadmisTables.Kicks.O[rot][index].x,
+                                     QuadmisTables.Kicks.O[startRot][index].y - QuadmisTables.Kicks.O[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class I implements QuadmisMetaQuad {
+
+        private final static Color color = Color.CYAN;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.I[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.I[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.I[startRot][index].x - QuadmisTables.Kicks.I[rot][index].x,
+                                     QuadmisTables.Kicks.I[startRot][index].y - QuadmisTables.Kicks.I[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.I[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.I[startRot][index].x - QuadmisTables.Kicks.I[rot][index].x,
+                                     QuadmisTables.Kicks.I[startRot][index].y - QuadmisTables.Kicks.I[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class T implements QuadmisMetaQuad {
+
+        private final static Color color = Color.PURPLE;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.T[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.T[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.T[startRot][index].x - QuadmisTables.Kicks.T[rot][index].x,
+                                     QuadmisTables.Kicks.T[startRot][index].y - QuadmisTables.Kicks.T[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.T[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.T[startRot][index].x - QuadmisTables.Kicks.T[rot][index].x,
+                                     QuadmisTables.Kicks.T[startRot][index].y - QuadmisTables.Kicks.T[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class L implements QuadmisMetaQuad {
+
+        private final static Color color = Color.ORANGE;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.L[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.L[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.L[startRot][index].x - QuadmisTables.Kicks.L[rot][index].x,
+                                     QuadmisTables.Kicks.L[startRot][index].y - QuadmisTables.Kicks.L[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.O[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.L[startRot][index].x - QuadmisTables.Kicks.L[rot][index].x,
+                                     QuadmisTables.Kicks.L[startRot][index].y - QuadmisTables.Kicks.L[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class J implements QuadmisMetaQuad {
+
+        private final static Color color = Color.BLUE;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.J[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.J[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.J[startRot][index].x - QuadmisTables.Kicks.J[rot][index].x,
+                                     QuadmisTables.Kicks.J[startRot][index].y - QuadmisTables.Kicks.J[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.J[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.J[startRot][index].x - QuadmisTables.Kicks.J[rot][index].x,
+                                     QuadmisTables.Kicks.J[startRot][index].y - QuadmisTables.Kicks.J[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class S implements QuadmisMetaQuad {
+
+        private final static Color color = Color.GREEN;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.S[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.S[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.S[startRot][index].x - QuadmisTables.Kicks.S[rot][index].x,
+                                     QuadmisTables.Kicks.S[startRot][index].y - QuadmisTables.Kicks.S[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.S[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.S[startRot][index].x - QuadmisTables.Kicks.S[rot][index].x,
+                                     QuadmisTables.Kicks.S[startRot][index].y - QuadmisTables.Kicks.S[rot][index].y);
+                }
+            };
+        }
+    }
+
+    public static class Z implements QuadmisMetaQuad {
+
+        private final static Color color = Color.RED;
+
+        @Override
+        public Color getColor() {
+            return color;
+        }
+
+        @Override
+        public boolean[][] getShape(int rot) {
+            return QuadmisTables.Rotations.Z[rot];
+        }
+
+        @Override
+        public QuadmisKick getRotLeft(int startRot) {
+            int rot = startRot - 1 < 0 ? 3 : startRot - 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.Z[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.Z[startRot][index].x - QuadmisTables.Kicks.Z[rot][index].x,
+                                     QuadmisTables.Kicks.Z[startRot][index].y - QuadmisTables.Kicks.Z[rot][index].y);
+                }
+            };
+        }
+
+        @Override
+        public QuadmisKick getRotRight(int startRot) {
+            int rot = startRot + 1 > 3 ? 0 : startRot + 1;
+            return new QuadmisKick() {
+                @Override
+                public boolean[][] getKickGeometry() {
+                    return QuadmisTables.Rotations.Z[rot];
+                }
+
+                @Override
+                public Point getOffset(int index) {
+                    return new Point(QuadmisTables.Kicks.Z[startRot][index].x - QuadmisTables.Kicks.Z[rot][index].x,
+                                     QuadmisTables.Kicks.Z[startRot][index].y - QuadmisTables.Kicks.Z[rot][index].y);
                 }
             };
         }

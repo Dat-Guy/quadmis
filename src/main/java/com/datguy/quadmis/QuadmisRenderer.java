@@ -5,38 +5,28 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.lang.ref.WeakReference;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class QuadmisRenderer {
 
-    private final Timer timer = new Timer();
-    private TimerTask renderTask;
-
-    private WeakReference<QuadmisCore> invoker;
+    private final WeakReference<QuadmisCore> invoker;
 
     public QuadmisRenderer(QuadmisCore core) {
         invoker = new WeakReference<>(core);
-
-        renderTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (invoker.get() == null) {
-                    this.cancel();
-                    return;
-                }
-                renderGrid(invoker.get().getController().getGraphics(), invoker.get().getGrid(), 0, 0, invoker.get().getController().getCanvas().getWidth(), invoker.get().getController().getCanvas().getHeight());
-            }
-        };
     }
 
     public void start() {
-        invoker.get().getController().getCanvas().setDefaultRedraw(resizableCanvas -> {
-            renderGrid(invoker.get().getController().getGraphics(), invoker.get().getGrid(), 0, 0, invoker.get().getController().getCanvas().getWidth(), invoker.get().getController().getCanvas().getHeight());
-            return null;
-        });
-        // Render at 120 FPS
-        timer.scheduleAtFixedRate(renderTask, 0, 1000 / 120);
+        QuadmisCore gotten = invoker.get();
+        if (gotten != null) {
+            gotten.getController().getCanvas().setDefaultRedraw(resizableCanvas -> {
+                QuadmisCore gotten2 = invoker.get();
+                if (gotten2 != null) {
+                    renderGrid(resizableCanvas.getGraphicsContext2D(), gotten2.getGrid(), 0, 0,resizableCanvas.getWidth(), resizableCanvas.getHeight());
+                }
+                return null;
+            });
+
+            gotten.getController().startAnimation();
+        }
     }
 
     public void renderGrid(GraphicsContext gc, QuadmisGrid grid, double x, double y, double width, double height) {
@@ -50,7 +40,7 @@ public class QuadmisRenderer {
         double halfPadWidth = (width - blockSize * 10) / 2;
         double halfPadHeight = (height - blockSize * 24) / 2;
 
-        // Initially let's just fill each square
+        // Fills grid with visual contents
         for (int r = 23; r >= 0; r--) {
             for (int c = 0; c < 10; c++) {
                 if (grid.getBlock(r, c) != null) {
@@ -60,9 +50,13 @@ public class QuadmisRenderer {
             }
         }
 
+        // Grid outline
         gc.setStroke(Color.WHITESMOKE);
         gc.setLineWidth(1);
         gc.strokeRect(x + halfPadWidth, y + blockSize * 4 + halfPadHeight, blockSize * 10, blockSize * 20);
+
+        // Draws active piece
+        gc.setLineWidth(0);
 
         boolean[][] shape = grid.getPiece().quad.getShape();
         gc.setFill(grid.getPiece().quad.getColor());
@@ -73,9 +67,20 @@ public class QuadmisRenderer {
         for (int row = shape.length - 1; row >= 0; row--) {
             for (int col = 0; col < shape[row].length; col++) {
                 if (shape[row][col]) {
-                    gc.fillRect(x + (col + offX) * blockSize + 1 + halfPadWidth, y + (row + offY) * blockSize + 1 + halfPadHeight, blockSize, blockSize);
+                    gc.fillRect(x + (col + offX) * blockSize + 1 + halfPadWidth,
+                            y + (23 + row - offY) * blockSize + 1 + halfPadHeight,
+                            blockSize, blockSize);
                 }
             }
         }
+
+        // Draws piece local space outline (DEBUG)
+        gc.setStroke(Color.WHITESMOKE);
+        gc.setLineWidth(1);
+        gc.strokeRect(x + halfPadWidth + offX * blockSize,
+                y + halfPadHeight + (23 - offY) * blockSize,
+                blockSize * shape[0].length,
+                blockSize * shape.length);
+
     }
 }
