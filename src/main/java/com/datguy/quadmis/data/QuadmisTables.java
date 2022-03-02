@@ -74,7 +74,7 @@ public class QuadmisTables {
                 {false, true, false},
                 {true, true, false},
                 {false, true, false}
-            },
+            }
         };
         public static final boolean[][][] L = {
             {
@@ -96,7 +96,7 @@ public class QuadmisTables {
                 {true, true, false},
                 {false, true, false},
                 {false, true, false}
-            },
+            }
         };
         public static final boolean[][][] J = {
             {
@@ -118,7 +118,7 @@ public class QuadmisTables {
                 {false, true, false},
                 {false, true, false},
                 {true, true, false}
-            },
+            }
         };
         public static final boolean[][][] S = {
             {
@@ -140,7 +140,7 @@ public class QuadmisTables {
                 {true, false, false},
                 {true, true, false},
                 {false, true, false}
-            },
+            }
         };
         public static final boolean[][][] Z = {
             {
@@ -162,8 +162,103 @@ public class QuadmisTables {
                 {false, true, false},
                 {true, true, false},
                 {true, false, false}
-            },
+            }
         };
+    }
+
+    // Spins store each point for a piece with valid spins
+    public static class Spins {
+        public static class T {
+            public static final boolean hasSpin = true;
+            public static final boolean[][][] A = {
+                    {
+                            {true, false, false},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, true},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {false, false, true}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {true, false, false}
+                    }
+            };
+            public static final boolean[][][] B = {
+                    {
+                            {false, false, true},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {false, false, true}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {true, false, false}
+                    },
+                    {
+                            {true, false, false},
+                            {false, false, false},
+                            {false, false, false}
+                    }
+            };
+            public static final boolean[][][] C = {
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {true, false, false}
+                    },
+                    {
+                            {true, false, false},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, true},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {false, false, true}
+                    }
+            };
+            public static final boolean[][][] D = {
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {false, false, true}
+                    },
+                    {
+                            {false, false, false},
+                            {false, false, false},
+                            {true, false, false}
+                    },
+                    {
+                            {true, false, false},
+                            {false, false, false},
+                            {false, false, false}
+                    },
+                    {
+                            {false, false, true},
+                            {false, false, false},
+                            {false, false, false}
+                    }
+            };
+        }
     }
 
     // Kicks are stored as a series of coordinate offsets, where 0,0 is the top-left of local coordinate space.
@@ -214,5 +309,16 @@ public class QuadmisTables {
                 {new Point(1,1), new Point(1,1), new Point(1,1), new Point(1,1), new Point(1,1)},
                 {new Point(1,1), new Point(0,1), new Point(0,2), new Point(-1,1), new Point(0,-1)}
         };
+    }
+
+    // Origins define what coordinate point the pieces will generate on
+    public static class Origins {
+        public static final Point O = new Point(4, 21);
+        public static final Point I = new Point(3, 21);
+        public static final Point T = new Point(3, 21);
+        public static final Point L = new Point(3, 21);
+        public static final Point J = new Point(3, 21);
+        public static final Point S = new Point(3, 21);
+        public static final Point Z = new Point(3, 21);
     }
 }

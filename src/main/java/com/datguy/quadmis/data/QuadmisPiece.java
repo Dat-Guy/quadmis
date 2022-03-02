@@ -1,5 +1,7 @@
 package com.datguy.quadmis.data;
 
+import com.datguy.quadmis.middlemen.QuadmisQuad;
+
 import java.lang.ref.WeakReference;
 
 public class QuadmisPiece {

@@ -1,7 +1,8 @@
-package com.datguy.quadmis.data;
+package com.datguy.quadmis.middlemen;
 
 import com.datguy.quadmis.QuadmisKick;
 import com.datguy.quadmis.QuadmisMetaQuad;
+import com.datguy.quadmis.data.QuadmisTables;
 import javafx.scene.paint.Color;
 
 import java.awt.Point;
@@ -17,17 +18,23 @@ public class QuadmisQuad {
 
     /**
      * @param metaQuad The quad to use as a template (i.e. O)
-     * @param startX The starting position's x coordinate
-     * @param startY The starting position's y coordinate
      */
-    public QuadmisQuad(QuadmisMetaQuad metaQuad, int startX, int startY) {
+    public QuadmisQuad(QuadmisMetaQuad metaQuad) {
         this.metaQuad = metaQuad;
-        p = new Point(startX, startY);
+        p = (Point) metaQuad.getOrigin().clone();
         rot = 0;
+    }
+
+    public Class<? extends QuadmisMetaQuad> getMetaClass() {
+        return metaQuad.getClass();
     }
 
     public Color getColor() {
         return metaQuad.getColor();
+    }
+
+    public int getRot() {
+        return rot;
     }
 
     public QuadmisKick getRotLeft() {
@@ -39,11 +46,11 @@ public class QuadmisQuad {
     }
 
     public void rotLeft() {
-        rot = rot == 0 ? 3 : rot - 1;
+        rot = (rot - 1 < 0) ? 3 : rot - 1;
     }
 
     public void rotRight() {
-        rot = rot == 3 ? 0 : rot + 1;
+        rot = (rot + 1 > 3) ? 0 : rot + 1;
     }
 
     public Point getPos() {
@@ -52,6 +59,11 @@ public class QuadmisQuad {
 
     public boolean[][] getShape() {
         return this.metaQuad.getShape(rot);
+    }
+
+    public void reset() {
+        setPos(metaQuad.getOrigin());
+        rot = 0;
     }
 
     public void setPos(Point p) {
@@ -65,6 +77,11 @@ public class QuadmisQuad {
         @Override
         public Color getColor() {
             return color;
+        }
+
+        @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.O;
         }
 
         @Override
@@ -110,6 +127,11 @@ public class QuadmisQuad {
     public static class I implements QuadmisMetaQuad {
 
         private final static Color color = Color.CYAN;
+
+        @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.I;
+        }
 
         @Override
         public Color getColor() {
@@ -161,6 +183,11 @@ public class QuadmisQuad {
         private final static Color color = Color.PURPLE;
 
         @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.T;
+        }
+
+        @Override
         public Color getColor() {
             return color;
         }
@@ -210,6 +237,11 @@ public class QuadmisQuad {
         private final static Color color = Color.ORANGE;
 
         @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.L;
+        }
+
+        @Override
         public Color getColor() {
             return color;
         }
@@ -242,7 +274,7 @@ public class QuadmisQuad {
             return new QuadmisKick() {
                 @Override
                 public boolean[][] getKickGeometry() {
-                    return QuadmisTables.Rotations.O[rot];
+                    return QuadmisTables.Rotations.L[rot];
                 }
 
                 @Override
@@ -261,6 +293,11 @@ public class QuadmisQuad {
         @Override
         public Color getColor() {
             return color;
+        }
+
+        @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.J;
         }
 
         @Override
@@ -313,6 +350,11 @@ public class QuadmisQuad {
         }
 
         @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.S;
+        }
+
+        @Override
         public boolean[][] getShape(int rot) {
             return QuadmisTables.Rotations.S[rot];
         }
@@ -359,6 +401,11 @@ public class QuadmisQuad {
         @Override
         public Color getColor() {
             return color;
+        }
+
+        @Override
+        public Point getOrigin() {
+            return QuadmisTables.Origins.Z;
         }
 
         @Override

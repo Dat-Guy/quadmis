@@ -1,75 +1,101 @@
 package com.datguy.quadmis.data;
 
-import com.datguy.quadmis.QuadmisInputHandler;
+import com.datguy.quadmis.middlemen.QuadmisAbstractEventHandler;
 import com.datguy.quadmis.QuadmisKick;
+import com.datguy.quadmis.QuadmisMetaQuad;
+import com.datguy.quadmis.middlemen.QuadmisQuad;
+import javafx.scene.paint.Color;
 
 import java.awt.Point;
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.*;
 
 public class QuadmisGrid {
 
+    // TODO: Add hashtable converting bagPool indices to pieces (both meta and tables)
     private static final int[] bagPool = new int[]{0, 1, 2, 3, 4, 5, 6};
+    private static final int bagSize = 7;
+
+    // Used to translate bag draws to pieces, as well as the next queue to renderable shapes
+    public static final QuadmisMetaQuad[] bagToMeta = new QuadmisMetaQuad[]{new QuadmisQuad.O(),
+                                                                            new QuadmisQuad.I(),
+                                                                            new QuadmisQuad.T(),
+                                                                            new QuadmisQuad.L(),
+                                                                            new QuadmisQuad.J(),
+                                                                            new QuadmisQuad.S(),
+                                                                            new QuadmisQuad.Z()};
 
     // Should handle storage of blocks within grid, basic collision/clear checks and handling the results of such checks
     // There are 2 layers of storage:
     // Logical storage (used to determine collisions)
     // Rendering storage (used to draw the game)
     // These are separated in order to facilitate cleaner code as well as isolate bugs
-    boolean[][] grid = new boolean[40][];
-    private QuadmisBlock[][] visualGrid = new QuadmisBlock[40][];
+    final boolean[][] grid = new boolean[40][];
+    private final QuadmisBlock[][] visualGrid = new QuadmisBlock[40][];
 
     // Since death occurs when the piece is blocked from spawning, the grid should handle piece creation,
     // as collision checks have been allocated to the grid
     private QuadmisPiece piece;
-    private WeakReference<QuadmisInputHandler> parentHandler;
+    private QuadmisPiece hold;
+    private boolean swapLock = false;
+    private WeakReference<QuadmisAbstractEventHandler> parentHandler;
+    public final QuadmisAttack outgoingAttack = new QuadmisAttack(50);
     private boolean resting = false;
+    private boolean combo = false;
 
     // Okay so why is the bag 14 instead of 7?
     // Simple - the piece queue must show 5 pieces, even if it crosses bags
-    private final int[] bag = new int[14];
+    private final int[] bag = new int[bagSize * 2];
     private int bagPos;
+
+    private final LinkedList<QuadmisAttack.QuadmisAttackByte> queuedAttack = new LinkedList<>();
 
     public QuadmisGrid() {
         reset();
     }
 
-    public void setParentHandler(QuadmisInputHandler handler) {
+    public void setParentHandler(QuadmisAbstractEventHandler handler) {
         parentHandler = new WeakReference<>(handler);
-        handler.setGravity(500);
     }
 
     public void generateNextPiece() {
-
-        switch (bag[bagPos]) {
-            case 0 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.O(), 4, 22), this);
-            case 1 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.I(), 3, 21), this);
-            case 2 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.T(), 3, 22), this);
-            case 3 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.L(), 3, 22), this);
-            case 4 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.J(), 3, 22), this);
-            case 5 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.S(), 3, 22), this);
-            case 6 -> piece = new QuadmisPiece(new QuadmisQuad(new QuadmisQuad.Z(), 3, 22), this);
-        }
-
-        System.out.println("Generated piece with " + bag[bagPos] + " index");
+        piece = new QuadmisPiece(new QuadmisQuad(bagToMeta[bag[bagPos]]), this);
+        swapLock = false;
 
         bagPos++;
 
-        if (bagPos == 7) {
+        if (bagPos == bagSize) {
             int[] temp = QuadmisUtil.shuffled(bagPool);
-            System.arraycopy(temp, 0, bag, 0, 7);
+            System.arraycopy(temp, 0, bag, 0, bagSize);
         }
 
-        if (bagPos == 14) {
+        if (bagPos == bagSize * 2) {
             bagPos = 0;
             int[] temp = QuadmisUtil.shuffled(bagPool);
-            System.arraycopy(temp, 0, bag, 7, 7);
+            System.arraycopy(temp, 0, bag, bagSize, bagSize);
         }
     }
 
     public QuadmisPiece getPiece() {
         return piece;
+    }
+
+    public QuadmisPiece getHold() {
+        return hold;
+    }
+
+    public int[] getNextQueue() {
+        if (bagPos < bagSize + 2) {
+            return Arrays.copyOfRange(bag, bagPos, bagPos + (bagSize - 1));
+        } else {
+            int topSize = bagSize * 2 - bagPos;
+            int[] topPart = Arrays.copyOfRange(bag, bagPos, bagSize * 2);
+            int[] bottomPart = Arrays.copyOfRange(bag, 0, (bagSize - 2) - topSize);
+            int[] out = new int[bagSize - 2];
+            System.arraycopy(topPart, 0, out, 0, topPart.length);
+            System.arraycopy(bottomPart, 0, out, topSize, bottomPart.length);
+            return out;
+        }
     }
 
     public QuadmisBlock getBlock(int r, int c) {
@@ -80,12 +106,15 @@ public class QuadmisGrid {
         }
     }
 
+    public boolean getCombo() {
+        return combo;
+    }
+
     public void applyGravity() {
         if (!resting) {
             if (collides(piece.quad.getShape(), piece.quad.getPos().x, piece.quad.getPos().y - 1)) {
-                System.out.println("Attempted to fall through ground, starting autolock timer.");
                 resting = true;
-                parentHandler.get().setAutoLock();
+                Objects.requireNonNull(parentHandler.get()).setAutoLock(500); // TODO: Support master levels
             } else {
                 Point temp = piece.quad.getPos();
                 temp.y--;
@@ -95,24 +124,40 @@ public class QuadmisGrid {
     }
 
     public void lock() {
+        // If it's a T, checks if it's either a spin or a mini spin
+        boolean tSpin = piece.quad.getMetaClass() == QuadmisQuad.T.class &&
+                isTSpin(piece.quad.getRot(), piece.quad.getPos().x, piece.quad.getPos().y);
+        boolean miniTSpin = piece.quad.getMetaClass() == QuadmisQuad.T.class &&
+                isMiniTSpin(piece.quad.getRot(), piece.quad.getPos().x, piece.quad.getPos().y);
+
         boolean[][] shape = piece.quad.getShape();
         int offX = piece.quad.getPos().x;
         int offY = piece.quad.getPos().y;
 
-        if (offY > 22) {
-            reset();
-        }
+        boolean allAbove = true;
 
         for (int row = shape.length - 1; row >= 0; row--) {
             for (int col = 0; col < shape[row].length; col++) {
                 if (shape[row][col]) {
                     grid[offY - row][offX + col] = true;
                     visualGrid[offY - row][offX + col] = new QuadmisBlock(piece.quad.getColor(), new boolean[8]);
+                    allAbove = allAbove && (offY - row >= 20);
                 }
             }
         }
 
+        // Checks one of the game over conditions (piece completely outside the lower half of the grid (rows 1-20)
+        if (allAbove)  {
+            reset();
+            return;
+        }
+
+
+        // Clear lines
+        int clearCount = 0;
+
         for (int row = grid.length - 1; row >= 0; row--) {
+            // Checks if a row is completely filled
             boolean full = true;
             for (int col = 0; col < grid[row].length; col++) {
                 if (!grid[row][col]) {
@@ -121,6 +166,9 @@ public class QuadmisGrid {
                 }
             }
             if (full) {
+                clearCount++;
+
+                // Shifts EVERY ROW above the cleared row down by one
                 for (int row2 = row; row2 < grid.length - 1; row2++) {
                     for (int col = 0; col < grid[row2].length; col++) {
                         grid[row2][col] = grid[row2 + 1][col];
@@ -128,6 +176,7 @@ public class QuadmisGrid {
                     }
                 }
 
+                // Fills the top row with empty data
                 for (int col = 0; col < grid[grid.length - 1].length; col++) {
                     grid[grid.length - 1][col] = false;
                     visualGrid[grid.length - 1][col] = null;
@@ -135,8 +184,84 @@ public class QuadmisGrid {
             }
         }
 
+        if (clearCount > 0) {
+            Set<QuadmisAttack.QuadmisClear.Flags> flags = new HashSet<>();
+
+            if (tSpin) {
+                flags.add(QuadmisAttack.QuadmisClear.Flags.SPIN);
+            } else if (miniTSpin) {
+                flags.add(QuadmisAttack.QuadmisClear.Flags.MINI_SPIN);
+            }
+
+            if (combo) {
+                flags.add(QuadmisAttack.QuadmisClear.Flags.COMBO);
+            }
+
+            combo = true;
+
+            outgoingAttack.pushClear(new QuadmisAttack.QuadmisClear(clearCount, flags));
+            Objects.requireNonNull(parentHandler.get()).setAttackTrigger(outgoingAttack.getLast());
+
+            System.out.println(outgoingAttack);
+        } else {
+            combo = false;
+            resolveAttack();
+        }
+
         generateNextPiece();
+
+        // Checks if the piece collides with the grid on generation (game over)
+        if (collides(piece.quad.getShape(), piece.quad.getPos().x, piece.quad.getPos().y)) {
+            reset();
+            return;
+        }
+
         resting = false;
+    }
+
+    public void resolveAttack() {
+        for (Iterator<QuadmisAttack.QuadmisAttackByte> attackIterator = queuedAttack.iterator(); attackIterator.hasNext(); ) {
+            QuadmisAttack.QuadmisAttackByte attack = attackIterator.next();
+
+            int topRow = 40;
+
+            loop:
+            for (int r = grid.length - 1; r >= 0; r--) {
+                for (int c = 0; c < grid[r].length; c++) {
+                    if (grid[r][c])
+                        break loop;
+                }
+                topRow = r;
+            }
+
+            if (topRow + attack.attackAmount >= 40) {
+                reset();
+                return;
+            }
+
+            for (int r = grid.length - 1; r >= attack.attackAmount; r--) {
+                for (int c = 0; c < grid[r].length; c++) {
+                    grid[r][c] = grid[r - attack.attackAmount][c];
+                    visualGrid[r][c] = visualGrid[r - attack.attackAmount][c];
+                }
+            }
+
+            int emptyCol = (int) Math.floor(Math.random() * grid[0].length);
+
+            for (int r = 0; r < attack.attackAmount; r++) {
+                for (int c = 0; c < grid[r].length; c++) {
+                    if (c != emptyCol) {
+                        grid[r][c] = true;
+                        visualGrid[r][c] = new QuadmisBlock(Color.GRAY, new boolean[8]);
+                    } else {
+                        grid[r][c] = false;
+                        visualGrid[r][c] = null;
+                    }
+                }
+            }
+        }
+
+        queuedAttack.clear();
     }
 
     public void applyCWKick(Point offset) {
@@ -149,11 +274,12 @@ public class QuadmisGrid {
         piece.quad.setPos(new Point(piece.quad.getPos().x + offset.x, piece.quad.getPos().y - offset.y));
     }
 
+    // TODO: Make this not stupid
     public boolean collides(boolean[][] shape, int x, int y) {
         try {
             for (var r = 0; r < shape.length; r++) {
                 for (var c = 0; c < shape.length; c++) {
-                    if (shape[r][c] && grid[y - r][x + c]) {
+                    if (shape[r][c] && (y - r < 0 || x + c > grid[y - r].length || grid[y - r][x + c])) {
                         return true;
                     }
                 }
@@ -163,6 +289,35 @@ public class QuadmisGrid {
         }
 
         return false;
+    }
+
+    public boolean isMiniTSpin(int rot, int x, int y) {
+        if (collides(piece.quad.getShape(), x, y)) {
+            return false;
+        }
+
+        boolean A = collides(QuadmisTables.Spins.T.A[rot], x, y);
+        boolean B = collides(QuadmisTables.Spins.T.B[rot], x, y);
+        boolean C = collides(QuadmisTables.Spins.T.C[rot], x, y);
+        boolean D = collides(QuadmisTables.Spins.T.D[rot], x, y);
+
+        // C & D & (A | B)
+        return C && D && (A || B);
+    }
+
+    public boolean isTSpin(int rot, int x, int y) {
+        if (collides(piece.quad.getShape(), x, y)) {
+            return false;
+        }
+
+        boolean A = collides(QuadmisTables.Spins.T.A[rot], x, y);
+        boolean B = collides(QuadmisTables.Spins.T.B[rot], x, y);
+        boolean C = collides(QuadmisTables.Spins.T.C[rot], x, y);
+        boolean D = collides(QuadmisTables.Spins.T.D[rot], x, y);
+
+        // A & B & (C | D)
+        return A && B && (C || D);
+
     }
 
     public void applyCCWRot() {
@@ -182,7 +337,7 @@ public class QuadmisGrid {
 
         if (resting) {
             resting = false;
-            parentHandler.get().cancelAutoLock();
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         }
 
         applyCCWKick(offset);
@@ -205,7 +360,7 @@ public class QuadmisGrid {
 
         if (resting) {
             resting = false;
-            parentHandler.get().cancelAutoLock();
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         }
 
         applyCWKick(offset);
@@ -218,7 +373,7 @@ public class QuadmisGrid {
 
         if (resting) {
             resting = false;
-            parentHandler.get().cancelAutoLock();
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         }
     }
 
@@ -229,16 +384,42 @@ public class QuadmisGrid {
 
         if (resting) {
             resting = false;
-            parentHandler.get().cancelAutoLock();
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         }
     }
 
-    public void applyHarddrop() {
+    public void applyHardDrop() {
         while (!resting) {
             applyGravity();
         }
-        parentHandler.get().cancelAutoLock();
+        Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         lock();
+    }
+
+    public void applyHold() {
+        if (!swapLock) {
+            swapLock = true;
+
+            if (resting) {
+                resting = false;
+                Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
+            }
+
+            if (Objects.isNull(hold)) {
+                hold = piece;
+                generateNextPiece();
+            } else {
+                QuadmisPiece tmp = piece;
+                piece = hold;
+                hold = tmp;
+            }
+
+            hold.quad.reset();
+        }
+    }
+
+    public void applyAttack(QuadmisAttack.QuadmisAttackByte attack) {
+        queuedAttack.addLast(attack);
     }
 
     public void reset() {
@@ -257,13 +438,19 @@ public class QuadmisGrid {
 
         int[] temp = QuadmisUtil.shuffled(bagPool);
         int[] temp2 = QuadmisUtil.shuffled(bagPool);
-        System.arraycopy(temp, 0, bag, 0, 7);
-        System.arraycopy(temp2, 0, bag, 7, 7);
+        System.arraycopy(temp, 0, bag, 0, bagSize);
+        System.arraycopy(temp2, 0, bag, bagSize, bagSize);
 
-        System.out.println(Arrays.toString(bag));
+        outgoingAttack.flush();
 
         generateNextPiece();
+        hold = null;
+
+        if (resting) {
+            resting = false;
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
+        }
     }
-    // ya'know what would be neat? Connected block textures, like in tetr.io plus!
+    // You know what would be neat? Connected block textures, like in tetr.io plus!
     // However, to do so, we'd need to store extra data to generate textures
 }

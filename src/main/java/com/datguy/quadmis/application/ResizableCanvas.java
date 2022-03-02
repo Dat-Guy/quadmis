@@ -1,4 +1,4 @@
-package com.datguy.quadmis;
+package com.datguy.quadmis.application;
 
 import javafx.beans.InvalidationListener;
 import javafx.scene.canvas.Canvas;

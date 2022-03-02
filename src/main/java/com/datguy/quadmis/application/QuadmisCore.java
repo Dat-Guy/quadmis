@@ -1,9 +1,11 @@
-package com.datguy.quadmis;
+package com.datguy.quadmis.application;
 
 import com.datguy.quadmis.data.QuadmisGrid;
+import com.datguy.quadmis.middlemen.QuadmisAIEventHandler;
+import com.datguy.quadmis.middlemen.QuadmisAbstractEventHandler;
+import com.datguy.quadmis.middlemen.QuadmisEventHandler;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
@@ -12,7 +14,11 @@ import java.lang.ref.WeakReference;
 public class QuadmisCore {
 
     private final QuadmisGrid grid;
-    private final QuadmisInputHandler inputHandler;
+    private final QuadmisGrid grid2;
+
+    private final QuadmisEventHandler inputHandler;
+    private final QuadmisAIEventHandler inputHandler2;
+
     private final QuadmisRenderer renderer;
 
     private final WeakReference<QuadmisController> controller;
@@ -21,27 +27,40 @@ public class QuadmisCore {
     // but not implement anything itself other than handlers
     public QuadmisCore(QuadmisController controller) {
         grid = new QuadmisGrid();
-        inputHandler = new QuadmisInputHandler(grid);
+        grid2 = new QuadmisGrid();
+
+        inputHandler = new QuadmisEventHandler(grid);
+        inputHandler2 = new QuadmisAIEventHandler(grid2, 1);
+
         renderer = new QuadmisRenderer(this);
         this.controller = new WeakReference<>(controller);
 
         grid.setParentHandler(inputHandler);
+        grid2.setParentHandler(inputHandler2);
+
+        grid.outgoingAttack.setTarget(grid2);
+        grid2.outgoingAttack.setTarget(grid);
+
+        inputHandler.setGravity(500);
     }
 
     public void start() {
         inputHandler.start();
+        inputHandler2.start();
         renderer.start();
     }
 
     public void stop() {
         inputHandler.stop();
+        inputHandler2.stop();
         renderer.stop();
     }
 
     public void render() {
         QuadmisController gotten = controller.get();
         if (gotten != null) {
-            renderer.renderGrid(gotten.getGraphics(), grid, 0, 0, gotten.getCanvas().getWidth(), gotten.getCanvas().getHeight());
+            renderer.renderGrid(gotten.getGraphics(), grid, 0, 0, gotten.getCanvas().getWidth() / 2, gotten.getCanvas().getHeight());
+            renderer.renderGrid(gotten.getGraphics(), grid2, gotten.getCanvas().getWidth() / 2, 0, gotten.getCanvas().getWidth() / 2, gotten.getCanvas().getHeight());
         }
     }
 
@@ -68,7 +87,6 @@ public class QuadmisCore {
 
     // Handles MouseEvents
     private void handleMouseEvent(MouseEvent event) {
-
         // System.out.println(event.getEventType().getName() + ": " + event.getButton() + ", (x: " + event.getSceneX() + ", y: " + event.getSceneY() + ")");
     }
 
@@ -77,11 +95,11 @@ public class QuadmisCore {
     }
 
 
-    public static class QuadmisEventHandler<T extends Event> implements EventHandler<T> {
+    public static class QuadmisInputHandler<T extends Event> implements EventHandler<T> {
 
         QuadmisCore core;
 
-        public QuadmisEventHandler(QuadmisCore receiver) {
+        public QuadmisInputHandler(QuadmisCore receiver) {
             super();
             core = receiver;
         }

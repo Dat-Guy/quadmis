@@ -1,16 +1,19 @@
-package com.datguy.quadmis;
+package com.datguy.quadmis.middlemen;
 
+import com.datguy.quadmis.data.QuadmisAttack;
 import com.datguy.quadmis.data.QuadmisGrid;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Interprets user input into useful game events
  */
-public class QuadmisInputHandler {
+public class QuadmisEventHandler implements QuadmisAbstractEventHandler {
 
     private final QuadmisGrid grid;
     private final Timer timer = new Timer();
@@ -40,7 +43,7 @@ public class QuadmisInputHandler {
     // The input handler, since it's responsible for turning events into other events, needs to maintain
     // bidirectional communication.
 
-    public QuadmisInputHandler(QuadmisGrid grid) {
+    public QuadmisEventHandler(QuadmisGrid grid) {
         this.grid = grid; // The receiver of events
     }
 
@@ -65,18 +68,27 @@ public class QuadmisInputHandler {
         timer.schedule(gravity, 0, millisInterval);
     }
 
-    public void setAutoLock() {
+    public void setAutoLock(long millis) {
         autolock = new TimerTask() {
             @Override
             public void run() {
                 grid.lock();
             }
         };
-        timer.schedule(autolock, 500);
+        timer.schedule(autolock, millis);
     }
 
     public void cancelAutoLock() {
         autolock.cancel();
+    }
+
+    public void setAttackTrigger(QuadmisAttack.QuadmisAttackByte attack) {
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Objects.requireNonNull(grid.outgoingAttack.getTarget()).applyAttack(attack);
+            }
+        }, attack.getDelay(TimeUnit.MILLISECONDS));
     }
 
     public void handleKeyEvent(KeyEvent event) {
@@ -87,6 +99,9 @@ public class QuadmisInputHandler {
             if (event.getCode() == KeyCode.X) {
                 grid.applyCWRot();
             }
+            if (event.getCode() == KeyCode.C) {
+                grid.applyHold();
+            }
             if (event.getCode() == KeyCode.LEFT) {
                 grid.applyShiftLeft();
             }
@@ -94,7 +109,7 @@ public class QuadmisInputHandler {
                 grid.applyShiftRight();
             }
             if (event.getCode() == KeyCode.SPACE) {
-                grid.applyHarddrop();
+                grid.applyHardDrop();
             }
             if (event.getCode() == KeyCode.DOWN) {
                 for (int i = 0; i < 5; i++) {

@@ -2,6 +2,8 @@ package com.datguy.quadmis;
 
 import javafx.scene.paint.Color;
 
+import java.awt.Point;
+
 public interface QuadmisMetaQuad {
     // Kick tables are structured for
     // [current rotation][row][col]
@@ -10,6 +12,9 @@ public interface QuadmisMetaQuad {
 
     // Gets the current shape
     boolean[][] getShape(int rot);
+
+    // Gets the shape origin
+    Point getOrigin();
 
     // Gets the kick table entry for a CCW rotation
     QuadmisKick getRotLeft(int startRot);

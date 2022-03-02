@@ -1,8 +1,6 @@
-package com.datguy.quadmis;
+package com.datguy.quadmis.application;
 
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.GraphicsContext;
@@ -29,24 +27,6 @@ public class QuadmisController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Test to confirm redraw works as intended (on invalidation, with correct width/height)
-        /*canvas.setDefaultRedraw(resizableCanvas -> {
-            double width = resizableCanvas.getWidth();
-            double height = resizableCanvas.getHeight();
-            GraphicsContext gc = resizableCanvas.getGraphicsContext2D();
-
-            gc.setFill(Color.BLACK);
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(1);
-            gc.fillRect(0, 0, width, height);
-            gc.setStroke(Color.RED);
-            gc.setLineWidth(2);
-            gc.strokeLine(0, 0, width, height);
-            gc.strokeLine(width, 0, 0, height);
-
-            return null;
-        });*/
-
         canvas.widthProperty().bind(root.widthProperty());
         canvas.heightProperty().bind(root.heightProperty());
 

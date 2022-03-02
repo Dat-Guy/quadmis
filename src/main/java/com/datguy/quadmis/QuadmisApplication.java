@@ -1,6 +1,6 @@
 package com.datguy.quadmis;
 
-import com.datguy.quadmis.data.QuadmisBlock;
+import com.datguy.quadmis.application.QuadmisController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -8,9 +8,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import com.datguy.quadmis.QuadmisCore.QuadmisEventHandler;
+import com.datguy.quadmis.application.QuadmisCore.QuadmisInputHandler;
 
-import java.io.IOException;
+import java.io.*;
 
 public class QuadmisApplication extends Application {
     
@@ -21,8 +21,8 @@ public class QuadmisApplication extends Application {
         QuadmisController controller = fxmlLoader.getController();
 
         //scene.setFill(Color.BLACK);
-        scene.addEventHandler(MouseEvent.ANY, new QuadmisEventHandler<>(controller.getCore()));
-        scene.addEventHandler(KeyEvent.ANY, new QuadmisEventHandler<>(controller.getCore()));
+        scene.addEventHandler(MouseEvent.ANY, new QuadmisInputHandler<>(controller.getCore()));
+        scene.addEventHandler(KeyEvent.ANY, new QuadmisInputHandler<>(controller.getCore()));
 
         stage.setTitle("Hello!");
         stage.setOnHidden(e -> controller.stop());
