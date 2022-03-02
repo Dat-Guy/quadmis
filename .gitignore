@@ -1,3 +1,9 @@
+# Excuding build/.idea files
+.idea
+.gradle
+build
+gradle
+
 # Taken from: https://github.com/github/gitignore
 
 # Compiled class file
