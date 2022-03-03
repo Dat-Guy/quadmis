@@ -8,4 +8,5 @@ public interface QuadmisAbstractEventHandler {
     void setAutoLock(long millis);
     void cancelAutoLock();
     void setAttackTrigger(QuadmisAttack.QuadmisAttackByte attack);
+    void handleReset();
 }

@@ -1,7 +1,7 @@
 package com.datguy.quadmis.middlemen;
 
 import com.datguy.quadmis.ai.QuadmisAI;
-import com.datguy.quadmis.ai.QuadmisCostAI;
+import com.datguy.quadmis.ai.QuadmisMechanicalTSDAI;
 import com.datguy.quadmis.data.QuadmisAttack;
 import com.datguy.quadmis.data.QuadmisGrid;
 
@@ -19,7 +19,7 @@ public class QuadmisAIEventHandler implements QuadmisAbstractEventHandler {
 
     public QuadmisAIEventHandler(QuadmisGrid grid, double pPS) {
         this.grid = grid;
-        ai = new QuadmisCostAI();
+        ai = new QuadmisMechanicalTSDAI();
         piecesPerSecond = pPS;
     }
 
@@ -40,7 +40,6 @@ public class QuadmisAIEventHandler implements QuadmisAbstractEventHandler {
 
     @Override
     public void setAutoLock(long millis) {
-        grid.lock();
     }
 
     @Override
@@ -56,5 +55,10 @@ public class QuadmisAIEventHandler implements QuadmisAbstractEventHandler {
                 Objects.requireNonNull(grid.outgoingAttack.getTarget()).applyAttack(attack);
             }
         }, attack.getDelay(TimeUnit.MILLISECONDS));
+    }
+
+    @Override
+    public void handleReset() {
+        ai.reset();
     }
 }

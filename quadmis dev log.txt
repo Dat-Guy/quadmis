@@ -46,3 +46,8 @@ Also, code is a bit of a mess now. However, the application terminates gracefull
 > 28 Feb 2022 18:00 UST-5
 
 Next/Hold implemented for a bit, now I am working on the attack system, and the foundation for AI.
+
+> 2 Mar 2022 20:48 UST-5
+
+The first AI is done, and it simply plays out the iMTSDv2 strategy. Although not every intelligent, it does manage to
+send upwards of 10 TSDs before dying, and is a formidable opponent already.

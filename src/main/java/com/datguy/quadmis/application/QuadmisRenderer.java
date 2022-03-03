@@ -2,6 +2,7 @@ package com.datguy.quadmis.application;
 
 import com.datguy.quadmis.application.QuadmisCore;
 import com.datguy.quadmis.data.QuadmisAttack;
+import com.datguy.quadmis.data.QuadmisBlock;
 import com.datguy.quadmis.data.QuadmisGrid;
 import com.datguy.quadmis.data.QuadmisPiece;
 import javafx.scene.canvas.GraphicsContext;
@@ -58,8 +59,10 @@ public class QuadmisRenderer {
         // Fills grid with visual contents
         for (int r = 23; r >= 0; r--) {
             for (int c = 0; c < 10; c++) {
-                if (grid.getBlock(r, c) != null) {
-                    gc.setFill(grid.getBlock(r, c).color);
+                QuadmisBlock block = grid.getBlock(r, c);
+
+                if (block != null) {
+                    gc.setFill(block.color);
                 } else {
                     gc.setFill(Color.BLACK);
                 }
@@ -160,6 +163,19 @@ public class QuadmisRenderer {
             gc.strokeText(lastFive[i].toString(), holdX + blockSize + 2, holdY + blockSize * (8 + i));
         }
 
+        // Display incoming attack
+        if (grid.getQueuedAttack().size() > 0) {
+            gc.setStroke(Color.RED);
+            gc.setLineWidth(outlineSize / 2);
+            gc.setFont(new Font("Mono", blockSize));
+
+            int totalAttack = 0;
+            for (QuadmisAttack.QuadmisAttackByte attack : grid.getQueuedAttack()) {
+                totalAttack += attack.attackAmount;
+            }
+
+            gc.strokeText(String.valueOf(totalAttack), holdX + blockSize, holdY + blockSize * (15));
+        }
 
         // Display next queue
         double nextX = x + blockSize * 15 + halfPadWidth;

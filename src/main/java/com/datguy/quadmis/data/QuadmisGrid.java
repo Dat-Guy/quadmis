@@ -39,7 +39,7 @@ public class QuadmisGrid {
     private QuadmisPiece hold;
     private boolean swapLock = false;
     private WeakReference<QuadmisAbstractEventHandler> parentHandler;
-    public final QuadmisAttack outgoingAttack = new QuadmisAttack(50);
+    public final QuadmisAttack outgoingAttack = new QuadmisAttack(50, this);
     private boolean resting = false;
     private boolean combo = false;
 
@@ -80,6 +80,10 @@ public class QuadmisGrid {
         return piece;
     }
 
+    public boolean getSwapLock() {
+        return swapLock;
+    }
+
     public QuadmisPiece getHold() {
         return hold;
     }
@@ -98,6 +102,10 @@ public class QuadmisGrid {
         }
     }
 
+    public int getBagPos() {
+        return bagPos % bagSize;
+    }
+
     public QuadmisBlock getBlock(int r, int c) {
         try {
             return visualGrid[r][c];
@@ -108,6 +116,10 @@ public class QuadmisGrid {
 
     public boolean getCombo() {
         return combo;
+    }
+
+    public LinkedList<QuadmisAttack.QuadmisAttackByte> getQueuedAttack() {
+        return queuedAttack;
     }
 
     public void applyGravity() {
@@ -202,7 +214,7 @@ public class QuadmisGrid {
             outgoingAttack.pushClear(new QuadmisAttack.QuadmisClear(clearCount, flags));
             Objects.requireNonNull(parentHandler.get()).setAttackTrigger(outgoingAttack.getLast());
 
-            System.out.println(outgoingAttack);
+            // System.out.println(outgoingAttack);
         } else {
             combo = false;
             resolveAttack();
@@ -216,7 +228,10 @@ public class QuadmisGrid {
             return;
         }
 
-        resting = false;
+        if (resting) {
+            Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
+            resting = false;
+        }
     }
 
     public void resolveAttack() {
@@ -389,11 +404,16 @@ public class QuadmisGrid {
     }
 
     public void applyHardDrop() {
-        while (!resting) {
-            applyGravity();
+        while (!collides(piece.quad.getShape(), piece.quad.getPos().x, piece.quad.getPos().y - 1)) {
+            piece.quad.setPos(new Point(piece.quad.getPos().x, piece.quad.getPos().y - 1));
         }
-        Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         lock();
+    }
+
+    public void applyFirmDrop() {
+        while (!collides(piece.quad.getShape(), piece.quad.getPos().x, piece.quad.getPos().y - 1)) {
+            piece.quad.setPos(new Point(piece.quad.getPos().x, piece.quad.getPos().y - 1));
+        }
     }
 
     public void applyHold() {
@@ -422,7 +442,22 @@ public class QuadmisGrid {
         queuedAttack.addLast(attack);
     }
 
-    public void reset() {
+    public int reduceAttack(int amount) {
+        Iterator<QuadmisAttack.QuadmisAttackByte> attackIt = queuedAttack.iterator();
+        while (amount > 0 && attackIt.hasNext()) {
+            QuadmisAttack.QuadmisAttackByte attack = attackIt.next();
+            if (attack.attackAmount <= amount) {
+                amount -= attack.attackAmount;
+                queuedAttack.removeFirst();
+            } else {
+                attack.attackAmount -= amount;
+                amount = 0;
+            }
+        }
+        return amount;
+    }
+
+    public void internalReset() {
         // Populate the grid as empty
         for (var r = 0; r < 40; r++) {
             grid[r] = new boolean[10];
@@ -450,6 +485,14 @@ public class QuadmisGrid {
             resting = false;
             Objects.requireNonNull(parentHandler.get()).cancelAutoLock();
         }
+    }
+
+    public void reset() {
+        if (parentHandler != null) {
+            Objects.requireNonNull(parentHandler.get()).handleReset();
+        }
+
+        internalReset();
     }
     // You know what would be neat? Connected block textures, like in tetr.io plus!
     // However, to do so, we'd need to store extra data to generate textures

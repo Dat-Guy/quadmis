@@ -70,6 +70,9 @@ public class QuadmisQuad {
         this.p = p;
     }
 
+    public static final String[] nameArray = new String[]{QuadmisQuad.O.class.getName(), QuadmisQuad.I.class.getName(), QuadmisQuad.T.class.getName(), QuadmisQuad.L.class.getName(), QuadmisQuad.J.class.getName(), QuadmisQuad.S.class.getName(), QuadmisQuad.Z.class.getName()};
+
+
     public static class O implements QuadmisMetaQuad {
 
         private final static Color color = Color.YELLOW;

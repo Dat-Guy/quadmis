@@ -121,4 +121,9 @@ public class QuadmisEventHandler implements QuadmisAbstractEventHandler {
             }
         }
     }
+
+    @Override
+    public void handleReset() {
+
+    }
 }

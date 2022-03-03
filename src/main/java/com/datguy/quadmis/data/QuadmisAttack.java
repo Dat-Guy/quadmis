@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class QuadmisAttack {
     private WeakReference<QuadmisGrid> target;
+    private WeakReference<QuadmisGrid> parent;
 
     private final LinkedList<QuadmisAttackByte> attackQueue = new LinkedList<>();
     private final long attackDelay;
@@ -23,11 +24,12 @@ public class QuadmisAttack {
     private int comboCount;
     private int b2bCount;
 
-    public QuadmisAttack(long attackDelay) {
+    public QuadmisAttack(long attackDelay, QuadmisGrid p) {
         comboCount = 0;
         b2bCount = 0;
         this.attackDelay = attackDelay;
         target = new WeakReference<>(null);
+        parent = new WeakReference<>(p);
     }
 
     @Override
@@ -79,11 +81,17 @@ public class QuadmisAttack {
         if (clear.flags.contains(QuadmisClear.Flags.SPIN) ||
                 clear.flags.contains(QuadmisClear.Flags.MINI_SPIN) ||
                 clear.clearCount == 4) {
-            attackQueue.addLast(new QuadmisAttackByte(convertClearToAttack(clear), clear, attackDelay, TimeUnit.MILLISECONDS));
+            int rawAmount = convertClearToAttack(clear);
+            int amount = Objects.requireNonNull(parent.get()).reduceAttack(rawAmount);
+
+            attackQueue.addLast(new QuadmisAttackByte(amount, clear, attackDelay, TimeUnit.MILLISECONDS));
             b2bCount++;
         } else {
+            int rawAmount = convertClearToAttack(clear);
+            int amount = Objects.requireNonNull(parent.get()).reduceAttack(rawAmount);
+
             b2bCount = 0;
-            attackQueue.addLast(new QuadmisAttackByte(convertClearToAttack(clear), clear, attackDelay, TimeUnit.MILLISECONDS));
+            attackQueue.addLast(new QuadmisAttackByte(amount, clear, attackDelay, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -160,7 +168,7 @@ public class QuadmisAttack {
     }
 
     public static class QuadmisAttackByte implements Delayed {
-        public final int attackAmount;
+        public int attackAmount;
         public final QuadmisClear clear;
         private final long startNanoTime = System.nanoTime();
         private final long nanoDuration;
